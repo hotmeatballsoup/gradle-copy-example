@@ -1,0 +1,66 @@
+//import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
+import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
+
+plugins {
+	id 'groovy'
+	id 'eclipse'
+	id 'application'
+	id 'com.github.johnrengelman.shadow' version '1.2.3'
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+mainClassName = 'hotmeatballsoup.gradlecopyexample.Main'
+group = 'hotmeatballsoup'
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    compile(
+        'org.codehaus.groovy:groovy-all:2.4.7'
+    		,'org.slf4j:slf4j-api:1.7.21'
+    		,'org.slf4j:slf4j-simple:1.7.21'
+    )
+
+    testCompile(
+        'org.spockframework:spock-core:1.0-groovy-2.4'
+        ,'junit:junit:4.12'
+    )
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.13'
+}
+
+task deploy(type: Copy, overwrite: true) {
+	from('build/libs')
+	into('/PATH_TO_YOUR_USERHOME/tmp/deploy')
+	include('gradlecopyexample.jar')
+
+	into('/PATH_TO_YOUR_USERHOME/tmp/deploy')
+	include('config/**')
+}
+
+manifest {
+	attributes 'Main-Class': mainClassName
+}
+
+jar {
+	manifest {
+		attributes 'Main-Class': mainClassName
+	}
+	baseName = 'gradlecopyexample'
+}
+
+shadowJar {
+	transform(ServiceFileTransformer) {
+		exclude 'META-INF/*.DSA'
+		exclude 'META-INF/*.RSA'
+		exclude 'LICENSE*'
+	}
+	classifier = ''
+}
